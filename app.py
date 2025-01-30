@@ -71,7 +71,7 @@ def insert_data(event):
             username="admin",
             password="ggf_db",
         )
-        client.command("INSERT INTO my_demo (id, name) VALUES", [{'id': 1, 'name': 'Tangs'}])
+        client.command("INSERT INTO my_demo (id, name) VALUES (1, 'Tangs')")
         status_message.object = "**Inserted 1 rows of dummy data.**"
     except Exception as e:
         err_trace = traceback.format_exc()
