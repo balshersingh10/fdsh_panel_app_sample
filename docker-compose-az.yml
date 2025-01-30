@@ -18,7 +18,7 @@ services:
         soft: 262144
         hard: 262144
     volumes:
-      - datahub-fs/database:/var/lib/clickhouse
+      - ${WEBAPP_STORAGE_HOME}/clickhouse_database:/var/lib/clickhouse
 
   panel_app:
     image: ghcr.io/balshersingh10/balshersingh10/fdsh_panel_app_sample:latest
