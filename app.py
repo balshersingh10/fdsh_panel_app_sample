@@ -56,17 +56,23 @@ def insert_data(event):
     """
     try:
         # Prepare a small DataFrame
-        data = [
-            (1, "Alice",   "2025-01-01 10:00:00"),
-            (2, "Bob",     "2025-01-01 11:00:00"),
-            (3, "Charlie", "2025-01-01 12:00:00")
-        ]
-        df = pd.DataFrame(data, columns=['id','name','dt'])
-        df['dt'] = pd.to_datetime(df['dt'])  # ensure datetime type
+        # data = [
+        #     (1, "Alice",   "2025-01-01 10:00:00"),
+        #     (2, "Bob",     "2025-01-01 11:00:00"),
+        #     (3, "Charlie", "2025-01-01 12:00:00")
+        # ]
+        # df = pd.DataFrame(data, columns=['id','name','dt'])
+        # df['dt'] = pd.to_datetime(df['dt'])  # ensure datetime type
 
-        # Use clickhouse_connect insert_df
-        client.insert_df('my_demo', df)
-        status_message.object = "**Inserted 3 rows of dummy data.**"
+        # # Use clickhouse_connect insert_df
+        # client.insert_df('my_demo', df)
+        client = clickhouse_connect.get_client(
+            host="clickhouse",
+            username="admin",
+            password="ggf_db",
+        )
+        client.command("INSERT INTO my_demo (id, timestamp) VALUES", [{'id': 1, 'name': 'Tangs'}])
+        status_message.object = "**Inserted 1 rows of dummy data.**"
     except Exception as e:
         err_trace = traceback.format_exc()
         status_message.object = f"**Error inserting data**:\n```\n{str(e)}\n\n{err_trace}\n```"
