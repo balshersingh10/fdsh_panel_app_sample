@@ -28,7 +28,7 @@ def create_table(event):
         ENGINE = MergeTree()
         ORDER BY id
         """
-        client.execute(create_query)
+        client.command(create_query)
         status_message.object = "**Table created or already exists.**"
     except Exception as e:
         status_message.object = f"**Error creating table**: {str(e)}"
@@ -38,18 +38,15 @@ def insert_data(event):
     Inserts some dummy records into the table.
     """
     try:
-        # Example: Insert 3 rows
-        insert_query = """
-        INSERT INTO my_demo (id, name, dt) VALUES
-        """
         # Inserting multiple rows; the clickhouse_driver can handle a list of tuples
         data = [
             (1, "Alice", "2025-01-01 10:00:00"),
             (2, "Bob",   "2025-01-01 11:00:00"),
             (3, "Charlie","2025-01-01 12:00:00")
         ]
+        df = pd.DataFrame(data)
         # Format: "INSERT INTO table VALUES", then pass parameters
-        client.execute(insert_query, data)
+        client.insert_df('my_demo', df)
         status_message.object = "**Inserted 3 rows of dummy data.**"
     except Exception as e:
         status_message.object = f"**Error inserting data**: {str(e)}"
@@ -59,13 +56,11 @@ def show_data(event):
     Fetches data from the table and displays it in a Panel DataFrame widget.
     """
     try:
-        result = client.execute("SELECT * FROM my_demo ORDER BY id LIMIT 50")
-        if not result:
-            status_message.object = "**No data in table or table not created yet.**"
-            data_table.value = pd.DataFrame()  # clear table
-            return
-
-        df = pd.DataFrame(result, columns=["id", "name", "dt"])
+        try:
+            query = """SELECT "id", "name", "dt" FROM my_demo"""
+            df = client.query_df(query)
+        except Exception as e:
+            status_message.object = f"**Error show data**: {str(e)}"
         data_table.value = df
         status_message.object = "**Showing up to 50 rows**"
     except Exception as e:
