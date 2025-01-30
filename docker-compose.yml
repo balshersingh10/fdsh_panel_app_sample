@@ -35,5 +35,5 @@ services:
       - CLICKHOUSE_PASSWORD=ggf_db
 
 volumes:
-  datahub-fs/database:
+  datahub-fs:
     external: true
