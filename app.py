@@ -1,25 +1,26 @@
 import panel as pn
-from clickhouse_driver import Client
+import clickhouse_connect
 
-# Create a ClickHouse client. We'll use the service name "clickhouse" from docker-compose
-# for the host, and default port 9000 for native protocol.
-client = Client(host='clickhouse', port=9000)
+# Create a label widget to display messages
+label = pn.pane.Markdown("Click the button to do something!")
 
-def fetch_data():
-    """
-    Simple function to query the first few numbers from the system.numbers table.
-    This is built-in test data in ClickHouse.
-    """
-    query = "SELECT number FROM system.numbers LIMIT 5"
-    result = client.execute(query)
-    # Convert the tuple-list result into a more user-friendly list or DataFrame
-    # For Panel display, we can just return a list of lists or a simple DataFrame
-    return result
+# Define a callback function to run when the button is clicked
+def on_button_click(event):
+    label.object = "Button clicked!"
 
-# Create a Panel object. 
-# You can customize or build something more elaborate as needed.
-data_view = pn.widgets.DataFrame(fetch_data(), name="ClickHouse Data")
+# Create a button and link it to the callback
+button = pn.widgets.Button(name="Click Me", button_type="primary")
+button.on_click(on_button_click)
 
-# Serve the app
+# Build the layout (for instance, a vertical Column)
+layout = pn.Column(
+    "# My Simple Panel App",
+    "This is a static page with a single button.",
+    button,
+    label
+)
+
 if __name__ == "__main__":
-    pn.serve(data_view, port=80, address='0.0.0.0')
+    # Serve the layout on port 80 by default
+    # Or specify another port if you like (e.g., port=8080)
+    pn.serve(layout, port=80, address="0.0.0.0")
