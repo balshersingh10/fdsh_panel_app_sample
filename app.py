@@ -45,6 +45,7 @@ def insert_data(event):
             (3, "Charlie","2025-01-01 12:00:00")
         ]
         df = pd.DataFrame(data,columns=['id','name','dt'])
+        df['dt'] = pd.to_datetime(df['dt'])
         # Format: "INSERT INTO table VALUES", then pass parameters
         client.insert_df('my_demo', df)
         status_message.object = "**Inserted 3 rows of dummy data.**"
