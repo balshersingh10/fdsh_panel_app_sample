@@ -5,7 +5,7 @@ import clickhouse_connect
 # Connect to ClickHouse (adjust host, port, user, password as needed)
 client = clickhouse_connect.get_client(
     host="clickhouse",
-    port=9000,
+    port=8123,
     username="admin",
     password="ggf_db"
 )
