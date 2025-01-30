@@ -87,4 +87,4 @@ app_layout = pn.Column(
 )
 
 if __name__ == "__main__":
-    pn.serve(app_layout, address="0.0.0.0", port=80)
+    pn.serve(app_layout, address="0.0.0.0", port=80, allow_websocket_origin=['*'])
