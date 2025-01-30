@@ -77,7 +77,7 @@ show_button.on_click(show_data)
 
 # Layout
 app_layout = pn.Column(
-    "# Simple ClickHouse Demo",
+    "# Simple ClickHouse Demo V1",
     "Use the buttons below to create a table, insert data, and show data.",
     create_button,
     insert_button,
