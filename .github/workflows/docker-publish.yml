@@ -39,7 +39,9 @@ jobs:
           # dockerfile: ./subfolder/Dockerfile
           push: true
           tags: |
-            ghcr.io/singhb/panelapp:latest
+            ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:latest
+            # Optionally add a second tag like 'ghcr.io/<owner>/<repo>:<version>'
+            # for semantic versioning
 
       - name: Log out of GitHub Container Registry
         run: docker logout ghcr.io
