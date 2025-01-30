@@ -57,11 +57,8 @@ def show_data(event):
     Fetches data from the table and displays it in a Panel DataFrame widget.
     """
     try:
-        try:
-            query = """SELECT "id", "name", "dt" FROM my_demo"""
-            df = client.query_df(query)
-        except Exception as e:
-            status_message.object = f"**Error show data**: {str(e)}"
+        query = """SELECT "id", "name", "dt" FROM my_demo"""
+        df = client.query_df(query)
         data_table.value = df
         status_message.object = "**Showing up to 50 rows**"
     except Exception as e:
