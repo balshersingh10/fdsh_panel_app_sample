@@ -6,7 +6,7 @@ import traceback
 # Connect to ClickHouse (adjust host, port, user, password as needed)
 client = clickhouse_connect.get_client(
     host="clickhouse",
-    port=8123,         # or 9000 if using interface='native'
+    port=9000,         # or 9000 if using interface='native'
     username="admin",
     password="ggf_db"
 )
