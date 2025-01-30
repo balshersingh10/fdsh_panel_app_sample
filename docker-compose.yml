@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse_server
+    restart: always
+    environment:
+      - CLICKHOUSE_USER=admin
+      - CLICKHOUSE_PASSWORD=ggf_db
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    ports:
+      - "9000:9000"  # Native port
+      - "8123:8123"  # HTTP port
+      - "9009:9009"  # Interserver port
+    volumes:
+      # Map the datahub-fs named volume to ClickHouse's data directory
+      - datahub-fs:/var/lib/clickhouse
+
+  panel_app:
+    build: .  # or point to an existing image if you have one
+    container_name: panel_app
+    restart: always
+    depends_on:
+      - clickhouse
+    ports:
+      - "80:80"
+    # volumes:
+    #   # Optionally map the same or different volumes for your Panel app
+    #   - datahub-blob:/app/blob
+    #   - datahub-fs:/app/fs
+    # # environment: ... any needed variables (e.g. to connect to clickhouse)
+
+volumes:
+  # Mark these volumes as external if Azure or your environment
+  # has already created them (through Docker plugin, etc.)
+  datahub-fs:
+    external: true
+  # datahub-blob:
+  #   external: true
