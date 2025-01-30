@@ -1,11 +1,12 @@
 import panel as pn
 import pandas as pd
 import clickhouse_connect
+import traceback
 
 # Connect to ClickHouse (adjust host, port, user, password as needed)
 client = clickhouse_connect.get_client(
     host="clickhouse",
-    port=8123,
+    port=8123,         # or 9000 if using interface='native'
     username="admin",
     password="ggf_db"
 )
@@ -16,7 +17,7 @@ data_table = pn.widgets.DataFrame(pd.DataFrame(), name="ClickHouse Data")
 
 def create_table(event):
     """
-    Creates a simple table if it doesn't exist.
+    Creates a simple table if it doesn't exist, then verifies it's created.
     """
     try:
         create_query = """
@@ -29,43 +30,67 @@ def create_table(event):
         ORDER BY id
         """
         client.command(create_query)
-        status_message.object = "**Table created or already exists.**"
+
+        # Check if table is indeed created
+        check_query = "EXISTS TABLE my_demo"
+        result = client.command(check_query)
+        # ClickHouse returns 1 if table exists, 0 otherwise
+        if result == 1:
+            # (Optional) show the schema
+            schema_info = client.command("SHOW CREATE TABLE my_demo")
+            status_message.object = (
+                "**Table created or already exists.**\n\n"
+                f"```sql\n{schema_info}\n```"
+            )
+        else:
+            status_message.object = (
+                "**Table creation attempted, but table not found.**"
+            )
     except Exception as e:
-        status_message.object = f"**Error creating table**: {str(e)}"
+        # For more detailed stack trace, gather it
+        err_trace = traceback.format_exc()
+        status_message.object = f"**Error creating table**:\n```\n{str(e)}\n\n{err_trace}\n```"
 
 def insert_data(event):
     """
     Inserts some dummy records into the table.
     """
     try:
-        # Inserting multiple rows; the clickhouse_driver can handle a list of tuples
+        # Prepare a small DataFrame
         data = [
-            (1, "Alice", "2025-01-01 10:00:00"),
-            (2, "Bob",   "2025-01-01 11:00:00"),
-            (3, "Charlie","2025-01-01 12:00:00")
+            (1, "Alice",   "2025-01-01 10:00:00"),
+            (2, "Bob",     "2025-01-01 11:00:00"),
+            (3, "Charlie", "2025-01-01 12:00:00")
         ]
-        df = pd.DataFrame(data,columns=['id','name','dt'])
-        df['dt'] = pd.to_datetime(df['dt'])
-        # Format: "INSERT INTO table VALUES", then pass parameters
+        df = pd.DataFrame(data, columns=['id','name','dt'])
+        df['dt'] = pd.to_datetime(df['dt'])  # ensure datetime type
+
+        # Use clickhouse_connect insert_df
         client.insert_df('my_demo', df)
         status_message.object = "**Inserted 3 rows of dummy data.**"
     except Exception as e:
-        status_message.object = f"**Error inserting data**: {str(e)}"
+        err_trace = traceback.format_exc()
+        status_message.object = f"**Error inserting data**:\n```\n{str(e)}\n\n{err_trace}\n```"
 
 def show_data(event):
     """
     Fetches data from the table and displays it in a Panel DataFrame widget.
     """
     try:
-        query = """SELECT "id", "name", "dt" FROM my_demo"""
+        query = "SELECT id, name, dt FROM my_demo ORDER BY id LIMIT 50"
         df = client.query_df(query)
         data_table.value = df
-        status_message.object = "**Showing up to 50 rows**"
+        status_message.object = (
+            f"**Showing {len(df)} rows (up to 50).**"
+            if not df.empty else
+            "**Table is empty or not found.**"
+        )
     except Exception as e:
-        status_message.object = f"**Error fetching data**: {str(e)}"
+        err_trace = traceback.format_exc()
+        status_message.object = f"**Error fetching data**:\n```\n{str(e)}\n\n{err_trace}\n```"
         data_table.value = pd.DataFrame()  # clear table
 
-# Create the buttons
+# Create buttons
 create_button = pn.widgets.Button(name="Create Table", button_type="primary")
 create_button.on_click(create_table)
 
@@ -75,7 +100,7 @@ insert_button.on_click(insert_data)
 show_button = pn.widgets.Button(name="Show Data", button_type="warning")
 show_button.on_click(show_data)
 
-# Layout
+# Build the Panel layout
 app_layout = pn.Column(
     "# Simple ClickHouse Demo V1",
     "Use the buttons below to create a table, insert data, and show data.",
@@ -87,4 +112,10 @@ app_layout = pn.Column(
 )
 
 if __name__ == "__main__":
-    pn.serve(app_layout, address="0.0.0.0", port=80, allow_websocket_origin=['*'])
+    # If you need to allow external hostnames, specify them below
+    pn.serve(
+        app_layout,
+        address="0.0.0.0",
+        port=80,
+        allow_websocket_origin=["*"]  # or your domain
+    )
