@@ -89,6 +89,20 @@ def show_data(event):
         status_message.object = f"**Error fetching data**:\n```\n{str(e)}\n\n{err_trace}\n```"
         data_table.value = pd.DataFrame()  # clear table
 
+def drop_table(event):
+    """
+    Drops the 'my_demo' table if it exists, clearing out all data.
+    """
+    try:
+        drop_query = "DROP TABLE IF EXISTS my_demo"
+        client.command(drop_query)
+        status_message.object = "**Table 'my_demo' has been dropped.**"
+        # Clear out any displayed data
+        data_table.value = pd.DataFrame()
+    except Exception as e:
+        err_trace = traceback.format_exc()
+        status_message.object = f"**Error dropping table**:\n```\n{str(e)}\n\n{err_trace}\n```"
+
 # Create buttons
 create_button = pn.widgets.Button(name="Create Table", button_type="primary")
 create_button.on_click(create_table)
@@ -99,6 +113,9 @@ insert_button.on_click(insert_data)
 show_button = pn.widgets.Button(name="Show Data", button_type="warning")
 show_button.on_click(show_data)
 
+drop_button = pn.widgets.Button(name="Delete Table", button_type="danger")
+drop_button.on_click(drop_table)
+
 # Build the Panel layout
 app_layout = pn.Column(
     "# Simple ClickHouse Demo V1",
@@ -106,6 +123,7 @@ app_layout = pn.Column(
     create_button,
     insert_button,
     show_button,
+    drop_button,
     status_message,
     data_table
 )
