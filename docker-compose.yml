@@ -18,7 +18,7 @@ services:
         soft: 262144
         hard: 262144
     volumes:
-      - datahub-fs:/var/lib/clickhouse
+      - datahub-fs/database:/var/lib/clickhouse
 
   panel_app:
     image: ghcr.io/balshersingh10/balshersingh10/fdsh_panel_app_sample:latest
@@ -35,5 +35,5 @@ services:
       - CLICKHOUSE_PASSWORD=ggf_db
 
 volumes:
-  datahub-fs:
+  datahub-fs/database:
     external: true
