@@ -8,6 +8,7 @@ client = clickhouse_connect.get_client(
     host="clickhouse",
     username="admin",
     password="ggf_db",
+    port=9000
 )
 
 # We'll store messages and data in these panel components
