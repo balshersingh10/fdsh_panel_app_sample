@@ -10,9 +10,7 @@ services:
       - CLICKHOUSE_PASSWORD=ggf_db
       - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
     ports:
-      - "9000:9000"  # Native port
       - "80:8123"  # HTTP port
-      - "9009:9009"  # Interserver port
     ulimits:
       nofile:
         soft: 262144
