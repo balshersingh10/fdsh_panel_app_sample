@@ -7,8 +7,7 @@ import traceback
 client = clickhouse_connect.get_client(
     host="clickhouse",
     username="admin",
-    password="ggf_db",
-    port=9000
+    password="ggf_db"
 )
 
 # We'll store messages and data in these panel components
