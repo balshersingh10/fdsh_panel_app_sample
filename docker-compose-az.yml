@@ -16,4 +16,8 @@ services:
         soft: 262144
         hard: 262144
     volumes:
-      - ${WEBAPP_STORAGE_HOME}/clickhouse_database:/var/lib/clickhouse
+      - clickhouse_data:/var/lib/clickhouse
+      - clickhouse_logs:/var/log/clickhouse-server
+volumes:
+  clickhouse_data:
+  clickhouse_logs:
